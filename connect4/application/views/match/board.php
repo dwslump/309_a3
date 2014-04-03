@@ -93,7 +93,7 @@
 						var k = movement_user1.column;
 						context.drawImage(ball_red, board_initial_x+k*77-(k*2/(12-k)), movement_user1.height, 66,66);
 						movement_user1.height += 30;
-						for(var i = 0; i<6;i++){
+						for(var i = 0; i<5;i++){
 							if(ball[i+1][k] != 0){
 								if(movement_user1.height > board_initial_y+i*77-(k*2/(12-k))){
 									movement_user1.did=false;
@@ -102,10 +102,10 @@
 								}
 							} 
 						}
-						if(movement_user1.height > 550){
+						if(movement_user1.height > 500){
 							movement_user1.did = false;
 							movement_user1.height = 0;
-							ball[6][k] = 1;
+							ball[5][k] = 1;
 						}
 					}
 					//yellow ball movement
@@ -113,7 +113,7 @@
 						var k = movement_user2.column;
 						context.drawImage(ball_yellow, board_initial_x+k*77-(k*2/(12-k)), movement_user2.height, 66,66);
 						movement_user2.height += 30;
-						for(var i = 0; i<6;i++){
+						for(var i = 0; i<5;i++){
 							if(ball[i+1][k] != 0){
 								if(movement_user2.height > board_initial_y+i*77-(k*2/(12-k))){
 									movement_user2.did=false;
@@ -122,10 +122,10 @@
 								}
 							} 
 						}
-						if(movement_user2.height > 550){
+						if(movement_user2.height > 500){
 							movement_user2.did = false;
 							movement_user2.height = 0;
-							ball[6][k] = 2;
+							ball[5][k] = 2;
 						}
 					}
 					
@@ -156,17 +156,19 @@
 
 		    
 			context.canvas.addEventListener("click", function(event){
-				
-				if (turn == 1){
-					turn = 2;
-					movement_user1.did = true;
-					movement_user1.column = next_move;
-					//alert(next_move);
-				} else if (turn == 2){
-					turn = 1;
-					movement_user2.did = true;
-					movement_user2.column = next_move;
-					//alert(next_move);
+
+				if(ball[0][next_move]==0){
+					if (turn == 1){
+						turn = 2;
+						movement_user1.did = true;
+						movement_user1.column = next_move;
+						//alert(next_move);
+					} else if (turn == 2){
+						turn = 1;
+						movement_user2.did = true;
+						movement_user2.column = next_move;
+						//alert(next_move);
+					}
 				}
 				
 			}, false);

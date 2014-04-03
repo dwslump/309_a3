@@ -32,8 +32,8 @@
 			var board_initial_y = 35;
 
 			//movement flags: if the user did a movement, did receives true and column is where the movement was done.
-			var movement_user1 = {did: false, column: 0};
-			var movement_user2 = {did: false, column: 0};
+			var movement_user1 = {did: false, column: 0, height: 0};
+			var movement_user2 = {did: false, column: 0, height: 0};
 
 			var turn = 1; //user1 = 1; user2 = 2;
 
@@ -77,7 +77,48 @@
 						}
 					}
 					//if there is a ball falling:
-					//need to know where.
+					//need to know where. -> object movement_userx.did; movement_userx.column.
+					
+					//red ball movement
+					if(movement_user1.did){
+						var k = movement_user1.column;
+						context.drawImage(ball_red, board_initial_x+k*77-(k*2/(12-k)), movement_user1.height, 66,66);
+						movement_user1.height += 30;
+						for(var i = 0; i<6;i++){
+							if(ball[i+1][k] != 0){
+								if(movement_user1.height > board_initial_y+i*77-(k*2/(12-k))){
+									movement_user1.did=false;
+									movement_user1.height = 0;
+									ball[i][k] = 1;
+								}
+							} 
+						}
+						if(movement_user1.height > 500){
+							movement_user1.did = false;
+							movement_user1.height = 0;
+							ball[6][k] = 1;
+						}
+					}
+					//yellow ball movement
+					if(movement_user2.did){
+						var k = movement_user2.column;
+						context.drawImage(ball_yellow, board_initial_x+k*77-(k*2/(12-k)), movement_user2.height, 66,66);
+						movement_user2.height += 30;
+						for(var i = 0; i<6;i++){
+							if(ball[i+1][k] != 0){
+								if(movement_user2.height > board_initial_y+i*77-(k*2/(12-k))){
+									movement_user2.did=false;
+									movement_user2.height = 0;
+									ball[i][k] = 2;
+								}
+							} 
+						}
+						if(movement_user2.height > 500){
+							movement_user2.did = false;
+							movement_user2.height = 0;
+							ball[6][k] = 2;
+						}
+					}
 					
 				//2. draw board
 				context.drawImage(board_img, -100, 0, 800, 600);

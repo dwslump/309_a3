@@ -28,23 +28,69 @@
 			var context_width = context.canvas.width;
 			var context_height = context.canvas.height;
 
-			var board_initial_x = 128;
+			var board_initial_x = 31;
 			var board_initial_y = 35;
 
+			//movement flags: if the user did a movement, did receives true and column is where the movement was done.
+			var movement_user1 = {did: false, column: 0};
+			var movement_user2 = {did: false, column: 0};
+
+			var turn = 1; //user1 = 1; user2 = 2;
+
+			//creating the array of possible ball positions
+			var ball = new Array();
+			for(var i = 0; i<7; i++){ 
+				ball[i] = new Array(); 
+			}
+			
+			/*Obs: 
+			About the vector ball:
+			if the ball value is 0, it's empty;
+			if the ball value is 1, it is red;
+			if the ball value is 2, it is yellow;
+			*/
+
+			for(var i = 0; i<7; i++){
+				for(var j = 0; j<7; j++){ 
+					ball[i][j] = 0; //if it is 0, the position does not have a ball
+				}
+			}
+			
+			
+			//function to draw and redraw the game.
 			function draw() {
 				//clear div:
 				context.clearRect(0, 0, context_width, context_height);
-				
+
 				//1. draw balls
-				
-				
+					for(var i = 0; i<7;i++){
+						for(var j=0;j<7;j++){
+							//if ball value is 0:
+								//does nothing
+							if(ball[i][j]==1){
+								//it is red:
+								context.drawImage(ball_red, board_initial_x+j*77-(j*2/(12-j)), board_initial_y+i*77-(i*2/(12-i)), 66,66);
+							} else if(ball[i][j]==2){
+								//it is yellow:
+								context.drawImage(ball_yellow, board_initial_x+j*77-(j*2/(12-j)), board_initial_y+i*77-(i*2/(12-i)), 66,66);
+							}
+						}
+					}
+					//if there is a ball falling:
+					//need to know where.
+					
 				//2. draw board
 				context.drawImage(board_img, -100, 0, 800, 600);
 			};
 
 
 			
-			//redraw calling:
+			
+
+
+
+			
+			//draw calling:
 			var animateInterval = setInterval(draw, 100);
 
 			

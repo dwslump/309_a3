@@ -53,7 +53,7 @@
 			if the ball value is 2, it is yellow;
 			*/
 
-			for(var i = 0; i<7; i++){
+			for(var i = 0; i<6; i++){
 				for(var j = 0; j<7; j++){ 
 					ball[i][j] = 0; //if it is 0, the position does not have a ball
 				}
@@ -222,7 +222,7 @@
 	Hello <?= $user->fullName() ?>  <?= anchor('account/logout','(Logout)') ?>  
 	</div>
 	
-	<canvas id='game_canvas' width='600' height='666'></canvas>
+	<canvas id='game_canvas' width='600' height='555'></canvas>
 	
 	
 	<div id='status'> 

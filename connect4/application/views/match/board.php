@@ -10,8 +10,49 @@
 		var otherUser = "<?= $otherUser->login ?>";
 		var user = "<?= $user->login ?>";
 		var status = "<?= $status ?>";
+
+		//Loading the images:
+		var board_img = new Image();
+		var ball_red = new Image();
+		var ball_yellow = new Image();
+
+		board_img.src = "<?= base_url()?>/images/board.png"
+		ball_red.src = "<?= base_url()?>/images/red.png"
+		ball_yellow.src = "<?= base_url()?>/images/yellow.png"
 		
+			
 		$(function(){
+		//Game code here
+		
+			var context = document.getElementById("game_canvas").getContext("2d");
+			var context_width = context.canvas.width;
+			var context_height = context.canvas.height;
+
+			var board_initial_x = 128;
+			var board_initial_y = 35;
+
+			function draw() {
+				//clear div:
+				context.clearRect(0, 0, context_width, context_height);
+				
+				//1. draw balls
+				
+				
+				//2. draw board
+				context.drawImage(board_img, -100, 0, 800, 600);
+			};
+
+
+			
+			//redraw calling:
+			var animateInterval = setInterval(draw, 100);
+
+			
+				
+		
+
+
+			
 			$('body').everyTime(2000,function(){
 					if (status == 'waiting') {
 						$.getJSON('<?= base_url() ?>arcade/checkInvitation',function(data, text, jqZHR){
@@ -57,6 +98,9 @@
 	<div>
 	Hello <?= $user->fullName() ?>  <?= anchor('account/logout','(Logout)') ?>  
 	</div>
+	
+	<canvas id='game_canvas' width='800' height='600'></canvas>
+	
 	
 	<div id='status'> 
 	<?php 

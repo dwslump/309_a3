@@ -19,23 +19,26 @@
 		board_img.src = "<?= base_url()?>/images/board.png"
 		ball_red.src = "<?= base_url()?>/images/red.png"
 		ball_yellow.src = "<?= base_url()?>/images/yellow.png"
-		
 			
 		$(function(){
 		//Game code here
 		
+			var canvas = document.getElementById("game_canvas");
 			var context = document.getElementById("game_canvas").getContext("2d");
 			var context_width = context.canvas.width;
 			var context_height = context.canvas.height;
 
+			var rect = canvas.getBoundingClientRect();
+		    
 			var board_initial_x = 31;
-			var board_initial_y = 35;
+			var board_initial_y = 101;
 
 			//movement flags: if the user did a movement, did receives true and column is where the movement was done.
 			var movement_user1 = {did: false, column: 0, height: 0};
 			var movement_user2 = {did: false, column: 0, height: 0};
 
 			var turn = 1; //user1 = 1; user2 = 2;
+			var next_move = 0;
 
 			//creating the array of possible ball positions
 			var ball = new Array();
@@ -76,6 +79,12 @@
 							}
 						}
 					}
+					//draw next move:
+					if(turn == 1)
+						context.drawImage(ball_red, board_initial_x+next_move*77-(next_move*2/(12-next_move)), 10, 66,66);
+					else
+						context.drawImage(ball_yellow, board_initial_x+next_move*77-(next_move*2/(12-next_move)), 10, 66,66);
+					
 					//if there is a ball falling:
 					//need to know where. -> object movement_userx.did; movement_userx.column.
 					
@@ -93,7 +102,7 @@
 								}
 							} 
 						}
-						if(movement_user1.height > 500){
+						if(movement_user1.height > 550){
 							movement_user1.did = false;
 							movement_user1.height = 0;
 							ball[6][k] = 1;
@@ -113,7 +122,7 @@
 								}
 							} 
 						}
-						if(movement_user2.height > 500){
+						if(movement_user2.height > 550){
 							movement_user2.did = false;
 							movement_user2.height = 0;
 							ball[6][k] = 2;
@@ -121,7 +130,7 @@
 					}
 					
 				//2. draw board
-				context.drawImage(board_img, -100, 0, 800, 600);
+				context.drawImage(board_img, -100, 66, 800, 600);
 			};
 
 
@@ -133,7 +142,34 @@
 			
 			//draw calling:
 			var animateInterval = setInterval(draw, 100);
+		    
+		    
+		    //update next move:
+		    context.canvas.addEventListener('mousemove', function(evt) {
+			var mousePos = {
+		          x: evt.clientX - rect.left,
+		          y: evt.clientY - rect.top};
+		      //alert("Mouse Position: "+ mousePos.x + ', ' + mousePos.y);
+		      if(mousePos.x<553)
+		      	next_move = Math.floor(((mousePos.x*6)/480));    
+		      }, false);
 
+		    
+			context.canvas.addEventListener("click", function(event){
+				
+				if (turn == 1){
+					turn = 2;
+					movement_user1.did = true;
+					movement_user1.column = next_move;
+					//alert(next_move);
+				} else if (turn == 2){
+					turn = 1;
+					movement_user2.did = true;
+					movement_user2.column = next_move;
+					//alert(next_move);
+				}
+				
+			}, false);
 			
 				
 		
@@ -186,7 +222,7 @@
 	Hello <?= $user->fullName() ?>  <?= anchor('account/logout','(Logout)') ?>  
 	</div>
 	
-	<canvas id='game_canvas' width='800' height='600'></canvas>
+	<canvas id='game_canvas' width='600' height='666'></canvas>
 	
 	
 	<div id='status'> 

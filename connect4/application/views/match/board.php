@@ -186,12 +186,12 @@
 								alert("The other player needs to make a move, wait please.");
 							}
 						}
-						verifyWiner();					
+						verifyWinner();					
 					}
 					
 				}, false);
 
-				function verifyWiner(){
+				function verifyWinner(){
 					//line
 					for(var i=0;i<6;i++){
 						var win_red = 0;
@@ -300,14 +300,18 @@
 				function didMove(move_place){
 					if(player == user){
 						turn = 2;
+						
 						//debuging:
-						player = otherUser;
+						player = otherUser; //erase this to make multiplayer!
+						
 						//post move into Json here
 					}				
 					else{
 						turn = 1;
+						
 						//debuging:
-						player = user;
+						player = user; //erase this to make multiplayer!!!
+						
 						//post move into json here
 						
 					}

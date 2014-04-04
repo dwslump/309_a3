@@ -1,10 +1,4 @@
-
-<!DOCTYPE html>
-
-<html>
-	
-	<head>
-
+<?php include('inc/header.php'); ?>
 	<script src="http://code.jquery.com/jquery-latest.js"></script>
 	<script src="<?= base_url() ?>/js/jquery.timers.js"></script>
 	<script>
@@ -29,25 +23,19 @@
 			});
 	
 	</script>
-	</head> 
-<body>  
-	<h1>Connect 4</h1>
-
-	<div>
-	Hello <?= $user->fullName() ?>  <?= anchor('account/logout','(Logout)') ?>  <?= anchor('account/updatePasswordForm','(Change Password)') ?>
+	<div class="content">
+		<div class='user_bar'>
+			Hello, <?= $user->fullName() ?>!
+			<div class='buttons'>
+				<span id='button'> <?= anchor('account/logout','Logout') ?> </span> <span id='button'><?= anchor('account/updatePasswordForm','Change password') ?></span>
+			</div>
+		</div>
+		
+		<?php 
+			if (isset($errmsg)) 
+				echo "<p>$errmsg</p>";
+		?>
+		<h2>Available Users</h2>
+		<div id="availableUsers"></div>
 	</div>
-	
-<?php 
-	if (isset($errmsg)) 
-		echo "<p>$errmsg</p>";
-?>
-	<h2>Available Users</h2>
-	<div id="availableUsers">
-	</div>
-	
-	
-	
-</body>
-
-</html>
-
+		<?php include('inc/footer.php'); ?>

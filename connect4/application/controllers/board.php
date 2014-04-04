@@ -18,7 +18,7 @@ class Board extends CI_Controller {
     }
     
     
-    function index() {
+	function index() {
 		$user = $_SESSION['user'];
     		    	
 	    	$this->load->model('user_model');
@@ -26,8 +26,11 @@ class Board extends CI_Controller {
 	    	$this->load->model('match_model');
 	    	
 	    	$user = $this->user_model->get($user->login);
-
 	    	$invite = $this->invite_model->get($user->invite_id);
+	    	
+	    	$match = $this->match_model->get($user->match_id);
+	    	$otherUser = $this->user_model->getFromId($match->user1_id);
+	    	$player = $otherUser->login;
 	    	
 	    	if ($user->user_status_id == User::WAITING) {
 	    		$invite = $this->invite_model->get($user->invite_id);
@@ -35,14 +38,19 @@ class Board extends CI_Controller {
 	    	}
 	    	else if ($user->user_status_id == User::PLAYING) {
 	    		$match = $this->match_model->get($user->match_id);
-	    		if ($match->user1_id == $user->id)
+	    		if ($match->user1_id == $user->id){
+	    			$player = $user->login;
 	    			$otherUser = $this->user_model->getFromId($match->user2_id);
-	    		else
+	    		}else{
 	    			$otherUser = $this->user_model->getFromId($match->user1_id);
+	    			$player = $otherUser->login;
+	    		}
+	    			
 	    	}
 	    	
 	    	$data['user']=$user;
 	    	$data['otherUser']=$otherUser;
+	    	$data['player']=$player;
 	    	
 	    	switch($user->user_status_id) {
 	    		case User::PLAYING:	
@@ -55,6 +63,7 @@ class Board extends CI_Controller {
 	    	
 		$this->load->view('match/board',$data);
     }
+    
 
  	function postMsg() {
  		$this->load->library('form_validation');
@@ -63,6 +72,8 @@ class Board extends CI_Controller {
  		if ($this->form_validation->run() == TRUE) {
  			$this->load->model('user_model');
  			$this->load->model('match_model');
+ 		//	redirect('board/index', 'refresh');
+ 			
 
  			$user = $_SESSION['user'];
  			 
@@ -139,5 +150,92 @@ class Board extends CI_Controller {
 		echo json_encode(array('status'=>'failure','message'=>$errormsg));
  	}
  	
+ 	function getMove() {
+ 		$this->load->model('user_model');
+ 		$this->load->model('match_model');
+ 	
+ 		$user = $_SESSION['user'];
+ 	
+ 		$user = $this->user_model->get($user->login);
+ 		if ($user->user_status_id != User::PLAYING) {
+ 			$errormsg="Not in PLAYING state";
+ 			goto error;
+ 		}
+ 		// start transactional mode
+ 		$this->db->trans_begin();
+ 	
+ 		$match = $this->match_model->getExclusive($user->match_id);
+ 		
+ 		//diserialize
+ 		$blob = $match->board_state;
+ 		$tState = unserialize(base64_decode($blob));
+ 		
+ 		if ($this->db->trans_status() === FALSE) {
+ 			$errormsg = "Transaction error";
+ 			goto transactionerror;
+ 		}
+ 			
+ 		// if all went well commit changes
+ 		$this->db->trans_commit();
+ 			
+ 		echo json_encode(array('status'=>'success','tState'=>$tState));
+ 		return;
+ 	
+ 		transactionerror:
+ 		$this->db->trans_rollback();
+ 	
+ 		error:
+ 		echo json_encode(array('status'=>'failure','message'=>$errormsg));
+ 	}
+ 	
+ 	
+ /*	
+ 	function SendGame()
+ 	{
+ 		$user = $_SESSION['user'];
+ 		$this->load->model('user_model');
+ 		$this->load->model('match_model');
+ 		$game = $this->input->post('name');
+ 	
+ 		$user = $this->user_model->getExclusive($user->login);
+ 		if ($user->user_status_id != User::PLAYING) {
+ 			$errormsg="Not in PLAYING state";
+ 			goto error;
+ 		}
+ 	
+ 		$match = $this->match_model->get($user->match_id);
+ 		$this->match_model->updateBoard($match->id, serialize($game));
+ 	
+ 		return;
+ 		error:
+ 		echo json_encode(array('status'=>'failure'));
+ 	}
+ 	
+ 	function GetGame()
+ 	{
+ 		$user = $_SESSION['user'];
+ 		$this->load->model('user_model');
+ 		$this->load->model('match_model');
+ 	
+ 	
+ 		$user = $this->user_model->getExclusive($user->login);
+ 		if ($user->user_status_id != User::PLAYING) {
+ 			$errormsg="Not in PLAYING state";
+ 			goto error;
+ 		}
+ 	
+ 		$match = $this->match_model->get($user->match_id);
+ 		$ret = $this->match_model->getBlob($match->id);
+ 	
+ 		$obj = unserialize($ret->board_state);
+ 		echo $obj;
+ 		return;
+ 	
+ 		error:
+ 		echo json_encode(array('status'=>'failure','message'=>$errormsg));
+ 	
+ 	}	
+ 	*/
  }
-
+ 
+ 

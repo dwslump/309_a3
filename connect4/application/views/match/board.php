@@ -185,10 +185,96 @@
 							} else{
 								alert("The other player needs to make a move, wait please.");
 							}
-						}					
+						}
+						verifyWiner();					
 					}
 					
 				}, false);
+
+				function verifyWiner(){
+					//line
+					for(var i=0;i<6;i++){
+						var win_red = 0;
+						var win_yellow = 0;
+						for(var j=0;j<7;j++){
+							if(ball[i][j] == 1){
+								win_red++;
+							} else win_red=0;
+							if(ball[i][j] == 2){
+								win_yellow++;
+							} else win_yellow=0;
+							
+							if (win_red == 4){
+								alert(user + " won!");
+							}
+							if (win_yellow == 4){
+								alert(otherUser + " won!");
+							}
+						}
+					}
+					//column
+					for(var j=0;j<7;j++){
+						var win_red = 0;
+						var win_yellow = 0;
+						for(var i=0;i<7;i++){
+							if(ball[i][j] == 1){
+								win_red++;
+							} else win_red=0;
+							if(ball[i][j] == 2){
+								win_yellow++;
+							} else win_yellow=0;
+							
+							if (win_red == 4){
+								alert(user + " won!");
+							}
+							if (win_yellow == 4){
+								alert(otherUser + " won!");
+							}
+						}
+					}
+					//diagonal /
+					for(var k=0;k<4;k++){
+						for(var i=0;i<3;i++){
+							for(j=0;j<4;j++){
+								if(ball[j+i][j+k] == 1){
+									win_red++;
+								} else win_red=0;
+								if(ball[j+i][j+k] == 2){
+									win_yellow++;
+								} else win_yellow=0;
+								
+								if (win_red == 4){
+									alert(user + " won!");
+								}
+								if (win_yellow == 4){
+									alert(otherUser + " won!");
+								}
+							}
+						}
+					}
+					//diagonal \
+					for(var k=0;k<4;k++){
+						for(var i=0;i<3;i++){
+							for(j=3;j>=0;j--){
+								if(ball[j+i][3-j+k] == 1){
+									win_red++;
+								} else win_red=0;
+								if(ball[j+i][3-j+k] == 2){
+									win_yellow++;
+								} else win_yellow=0;
+								
+								if (win_red == 4){
+									alert(user + " won!");
+								}
+								if (win_yellow == 4){
+									alert(otherUser + " won!");
+								}
+							}
+						}
+					}
+				}
+				
+				
 				/*
 				//getMove here!!!
 				function update() {

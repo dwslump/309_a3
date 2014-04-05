@@ -16,6 +16,7 @@ class Board extends CI_Controller {
  	    	
 	    	return call_user_func_array(array($this, $method), $params);
     }
+
     
     
 	function index() {
@@ -210,7 +211,30 @@ class Board extends CI_Controller {
  		error:
  		echo json_encode(array('status'=>'failure'));
  	}
+*/
+ 	function SendGame(){
+//  		if(isset($_POST['board'])) { 			
+//  			$json = $_POST['board'];
+ 			$this->load->model('match_model');
+ 			$this->load->model('user_model');
+ 			$user = $this->user_model->get($_POST['user']);
+			$ball = $_POST['move_place'];
+ 			$this->match_model->updateBoard($user->match_id, serialize($ball)); 			
+ 	}
  	
+ 	function GetGame(){
+ 		$this->load->model('match_model');
+ 		$this->load->model('user_model');
+//  		$user->match_id = 11;
+ 		$user = $this->user_model->get($_GET['user']);
+ 		if(!empty($this->match_model->getBlob($user->match_id)->board_state))
+ 			$ball = unserialize($this->match_model->getBlob($user->match_id)->board_state);
+ 		else
+ 			$ball = "none";
+ 		echo json_encode(array("ball" => $ball));
+ 	}
+ /*
+  
  	function GetGame()
  	{
  		$user = $_SESSION['user'];

@@ -18,7 +18,14 @@
 			board_img.src = "<?= base_url()?>/images/board.png"
 			ball_red.src = "<?= base_url()?>/images/red.png"
 			ball_yellow.src = "<?= base_url()?>/images/yellow.png"
-				
+
+			var firstLoad = true;
+
+			var returned_board = new Array();	
+			for(var i = 0; i<7; i++){ 
+				returned_board[i] = new Array(); 
+			}
+			
 			$(function(){
 			//Game code here
 			
@@ -52,19 +59,42 @@
 				if the ball value is 1, it is red;
 				if the ball value is 2, it is yellow;
 				*/
+				update();
 
-				for(var i = 0; i<6; i++){
-					for(var j = 0; j<7; j++){ 
-						ball[i][j] = 0; //if it is 0, the position does not have a ball
-					}
-				}
-				
-				
+// 				didMove(ball,true);
+// 				turn=1;
 				//function to draw and redraw the game.
 				function draw() {
 					//clear div:
-					context.clearRect(0, 0, context_width, context_height);
 
+					context.clearRect(0, 0, context_width, context_height);
+					var made_move = false;
+					update();
+					for(var i = 0; i<6; i++){
+						for(var j = 0; j<7; j++){
+							if(returned_board[i][j] !=ball[i][j])
+								made_move = true;
+						}
+					}
+					if(made_move){					
+						for(var i = 0; i<6; i++){
+							for(var j = 0; j<7; j++){
+								ball[i][j] = returned_board[i][j];
+							}
+						}
+
+						if(!firstLoad){
+							console.log("someone made a move");
+							if(player==user){
+								turn = 1;
+							}else
+								turn = 2;
+						}
+						firstLoad=false;
+					}
+// 					else
+						
+					
 					//1. draw balls
 						for(var i = 0; i<7;i++){
 							for(var j=0;j<7;j++){
@@ -107,6 +137,7 @@
 								movement_user1.height = 0;
 								ball[5][k] = 1;
 							}
+							didMove(ball);
 						}
 						//yellow ball movement
 						if(movement_user2.did){
@@ -127,11 +158,12 @@
 								movement_user2.height = 0;
 								ball[5][k] = 2;
 							}
+							didMove(ball);
 						}
 
 					//2. draw board
 					context.drawImage(board_img, -100, 66, 800, 600);
-
+					
 	// 				if the ball value is 0, it's empty;
 	// 				if the ball value is 1, it is red;
 	// 				if the ball value is 2, it is yellow;
@@ -170,7 +202,7 @@
 								movement_user1.did = true;
 								movement_user1.column = next_move;
 								//postMove -> similar to postMsg (see bellow in chat);
-								didMove(next_move);							
+															
 							} else{
 								alert("The other player needs to make a move, wait please.");
 							}					
@@ -181,7 +213,7 @@
 								movement_user2.did = true;
 								movement_user2.column = next_move;
 								//postMove;
-								didMove(next_move);
+								
 							} else{
 								alert("The other player needs to make a move, wait please.");
 							}
@@ -275,46 +307,69 @@
 				}
 				
 				
-				/*
+				
 				//getMove here!!!
-				function update() {
+// 				function update() {
 					var url = "<?= base_url() ?>board/getMove";
-					$.getJSON(url, function (data,text,jqXHR){
-						if (data && data.status=='success') {
-							var tState = data.tState;
-						}
-						if(tState < 7){
-							if(turn==1){
-								movement_user1.did = true;
-								movement_user1.column = tState;
-								turn=2;
-							} else if(turn == 2){
-								movement_user2.did = true;
-								movement_user2.column = tState;
-								turn=1;
+// 					$.getJSON(url, function (data,text,jqXHR){
+// 						if (data && data.status=='success') {
+// 							var tState = data.tState;
+// 						}
+// 						if(tState < 7){
+// 							if(turn==1){
+// 								movement_user1.did = true;
+// 								movement_user1.column = tState;
+// 								turn=2;
+// 							} else if(turn == 2){
+// 								movement_user2.did = true;
+// 								movement_user2.column = tState;
+// 								turn=1;
+// 							}
+// 						}	
+// 					});
+// 				}
+					
+				function update(){
+					var action = new Object();
+					action.user = user;
+// 					console.log(action);
+					$.getJSON( "GetGame/controllers/board.php", action,function( data ) {							
+						if(data.ball!= "none"){							
+							for(var i = 0; i<6; i++){
+								for(var j = 0; j<7; j++){
+									returned_board[i][j] = data.ball[i][j]; //if it is 0, the position does not have a ball
+								}
 							}
-						}	
-					});
+							
+						}else{
+							for(var i = 0; i<6; i++){
+								for(var j = 0; j<7; j++){
+									returned_board[i][j] = 0;
+								}
+							}
+						}
+						
+						});
+					
 				}
-*/
+				
 				function didMove(move_place){
-					if(player == user){
-						turn = 2;
-						
-						//debuging:
-						player = otherUser; //erase this to make multiplayer!
-						
-						//post move into Json here
-					}				
-					else{
-						turn = 1;
-						
-						//debuging:
-						player = user; //erase this to make multiplayer!!!
-						
-						//post move into json here
-						
-					}
+						if(player == user){
+							turn = 2;						
+							var action = new Object();
+							action.user = user;
+							action.otherUser = otherUser;						
+							action.move_place = move_place;					
+							  $.ajax({
+								    type: 'POST',
+								    url: 'SendGame/controllers/board.php',
+								    data: action				  
+								  });
+						}				
+						else{
+							turn = 1;
+						}
+										
 				}
 						
 					

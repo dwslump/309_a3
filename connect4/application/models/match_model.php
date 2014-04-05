@@ -15,12 +15,13 @@ class Match_model extends CI_Model {
 	{
 		$this->db->where('id',$id);
 		$query = $this->db->get('match');
-		if ($query && $query->num_rows() > 0)
+		if ($query && $query->num_rows() > 0){			
 			return $query->row(0,'Match');
-		else
+		}else
 			return null;
 	}
 	
+
 	
 	function insert($match) {
 		return $this->db->insert('match',$match);
@@ -52,7 +53,7 @@ class Match_model extends CI_Model {
 		$sql = "select * from `match` where id=? ";
 		$query = $this->db->query($sql,array($id));
 		if ($query && $query->num_rows() > 0)
-			return $query->row(0,'Match');
+			return $query->row(0);
 		else
 			return null;
 	}

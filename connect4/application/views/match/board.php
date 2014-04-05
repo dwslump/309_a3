@@ -69,13 +69,14 @@
 
 					context.clearRect(0, 0, context_width, context_height);
 					var made_move = false;
-					update();
+					
 					for(var i = 0; i<6; i++){
 						for(var j = 0; j<7; j++){
 							if(returned_board[i][j] !=ball[i][j])
 								made_move = true;
 						}
 					}
+					update();
 					if(made_move){					
 						for(var i = 0; i<6; i++){
 							for(var j = 0; j<7; j++){
@@ -353,23 +354,16 @@
 					
 				}
 				
-				function didMove(move_place){
-						if(player == user){
-							turn = 2;						
-							var action = new Object();
-							action.user = user;
-							action.otherUser = otherUser;						
-							action.move_place = move_place;					
-							  $.ajax({
-								    type: 'POST',
-								    url: 'SendGame/controllers/board.php',
-								    data: action				  
-								  });
-						}				
-						else{
-							turn = 1;
-						}
-										
+				function didMove(move_place){					
+					var action = new Object();
+					action.user = user;
+					action.otherUser = otherUser;						
+					action.move_place = move_place;					
+					  $.ajax({
+						    type: 'POST',
+						    url: 'SendGame/controllers/board.php',
+						    data: action				  
+						  });			
 				}
 						
 					

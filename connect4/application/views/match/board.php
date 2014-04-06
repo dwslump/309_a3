@@ -6,6 +6,10 @@
 
 			var otherUser = "<?= $otherUser->login ?>";
 			var user = "<?= $user->login ?>";
+
+			var otherUserId = "<?= $otherUser->id ?>";
+			var userId = "<?= $user->id ?>";
+			
 			var status = "<?= $status ?>";
 
 			var player = "<?= $player ?>";
@@ -13,6 +17,8 @@
 			var myColor;
 
 			var localMove = false;
+
+			var dataLoaded=false;
 			
 			if(player == user)
 				myColor = "red";
@@ -29,7 +35,7 @@
 			ball_yellow.src = "<?= base_url()?>/images/yellow.png"
 
 			var firstLoad = true;
-			var fix = false;
+			var fix = 0;
 			var returned_board = new Array();	
 			for(var i = 0; i<7; i++){ 
 				returned_board[i] = new Array(); 
@@ -79,8 +85,6 @@
 					for(var i = 0; i<6; i++){
 						for(var j = 0; j<7; j++){
 							if(returned_board[i][j] !=ball[i][j]){
-// 								if(!firstLoad)
-// 									console.log("Differs on ["+i+"]["+j+"]");
 								board_changed = true;
 							}
 						}
@@ -90,8 +94,8 @@
 // 					console.log("User " + user);					
 // 					console.log("Other user " + otherUser);
 					
-					if(board_changed){		
-						
+					if(board_changed && dataLoaded){		
+						dataLoaded = false;
 // 						console.log("LOCAL BOARD");
 // 						console.log(ball);
 // 						console.log("REMOTE BOARD");
@@ -102,26 +106,28 @@
 								ball[i][j] = returned_board[i][j];
 							}
 						}
+
+// 						ball = $.extend(true, {},returned_board);
+						
 // 						if(!localMove && !firstLoad){ // The other player made the movement
 						if(!localMove && !firstLoad){
-							console.log("BOARD CHANGED!");
-							
-// 							console.log("Your oponent made a move!!!");
-							if(player == user){
+							if(player!=user)
+								console.log("Your oponent made a move!!!");	
+							if(player == user){								
 								player = otherUser;
 							}else{
 								player = user;
 							}
 // 						}else if(!firstLoad){
 // 							localMove = false;
-						}
-						
+						}						
 						firstLoad = false;
 					}
 
 						
 
 					//1. draw balls
+
 						for(var i = 0; i<7;i++){
 							for(var j=0;j<7;j++){
 								//if ball value is 0:
@@ -186,8 +192,22 @@
 	// 				if the ball value is 0, it's empty;
 	// 				if the ball value is 1, it is red;
 	// 				if the ball value is 2, it is yellow;
-
-
+					var winner = verifyWinner(); 
+					if(winner !="none"){
+						alert(winner);
+						var action = new Object();
+						action.userId = userId;
+						action.otherUserId = otherUserId;									
+						  $.ajax({
+							    type: 'POST',
+							    url: '<?= base_url() ?>board/endGame',
+							    data: action,
+							    success : function (data){window.location.href = '<?= base_url() ?>arcade/index';}		  
+							  });	
+						
+					}
+						
+	
 				};
 
 
@@ -214,7 +234,6 @@
 			    
 				context.canvas.addEventListener("click", function(event){
 					if(ball[0][next_move]==0){
-							verifyWinner();	
 							if(player==user){
 									localMove = true;
 									movement_user1.did = true;
@@ -241,10 +260,16 @@
 							} else win_yellow=0;
 							
 							if (win_red == 4){
-								alert(user + " won!");
+								if(myColor=="red")
+									return(user + " won!");
+								else
+									return(otherUser + " won!");
 							}
 							if (win_yellow == 4){
-								alert(otherUser + " won!");
+								if(myColor=="yellow")
+									return(user + " won!");
+								else
+									return(otherUser + " won!");
 							}
 						}
 					}
@@ -261,10 +286,16 @@
 							} else win_yellow=0;
 							
 							if (win_red == 4){
-								alert(user + " won!");
+								if(myColor=="red")
+									return(user + " won!");
+								else
+									return(otherUser + " won!");
 							}
 							if (win_yellow == 4){
-								alert(otherUser + " won!");
+								if(myColor=="yellow")
+									return(user + " won!");
+								else
+									return(otherUser + " won!");
 							}
 						}
 					}
@@ -280,10 +311,16 @@
 								} else win_yellow=0;
 								
 								if (win_red == 4){
-									alert(user + " won!");
+									if(myColor=="red")
+										return(user + " won!");
+									else
+										return(otherUser + " won!");
 								}
 								if (win_yellow == 4){
-									alert(otherUser + " won!");
+									if(myColor=="yellow")
+										return(user + " won!");
+									else
+										return(otherUser + " won!");
 								}
 							}
 						}
@@ -300,14 +337,21 @@
 								} else win_yellow=0;
 								
 								if (win_red == 4){
-									alert(user + " won!");
+									if(myColor=="red")
+										return(user + " won!");
+									else
+										return(otherUser + " won!");
 								}
 								if (win_yellow == 4){
-									alert(otherUser + " won!");
+									if(myColor=="yellow")
+										return(user + " won!");
+									else
+										return(otherUser + " won!");
 								}
 							}
 						}
 					}
+					return "none";
 				}
 					
 				function update(){
@@ -316,12 +360,13 @@
 					action.otherUser = otherUser;
 					$.getJSON('<?= base_url() ?>board/GetGame', action,function( data ) {							
 						if(data.ball!= "none"){							
-// 							for(var i = 0; i<6; i++){
-// 								for(var j = 0; j<7; j++){
-// 									returned_board[i][j] = data.ball[i][j]; //if it is 0, the position does not have a ball
-// 								}
-// 							}
-							returned_board = $.extend(true, {},data.ball);
+							for(var i = 0; i<6; i++){
+								for(var j = 0; j<7; j++){
+									returned_board[i][j] = data.ball[i][j]; //if it is 0, the position does not have a ball
+								}
+							}
+// 							returned_board = $.extend(true, {},data.ball);
+							
 						}else{
 							for(var i = 0; i<6; i++){
 								for(var j = 0; j<7; j++){
@@ -329,6 +374,7 @@
 								}
 							}
 						}
+						dataLoaded=true;
 						
 						});
 					

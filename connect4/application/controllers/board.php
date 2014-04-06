@@ -151,67 +151,6 @@ class Board extends CI_Controller {
 		echo json_encode(array('status'=>'failure','message'=>$errormsg));
  	}
  	
-//  	function getMove() {
-//  		$this->load->model('user_model');
-//  		$this->load->model('match_model');
- 	
-//  		$user = $_SESSION['user'];
- 	
-//  		$user = $this->user_model->get($user->login);
-//  		if ($user->user_status_id != User::PLAYING) {
-//  			$errormsg="Not in PLAYING state";
-//  			goto error;
-//  		}
-//  		// start transactional mode
-//  		$this->db->trans_begin();
- 	
-//  		$match = $this->match_model->getExclusive($user->match_id);
- 		
-//  		//diserialize
-//  		$blob = $match->board_state;
-//  		$tState = unserialize(base64_decode($blob));
- 		
-//  		if ($this->db->trans_status() === FALSE) {
-//  			$errormsg = "Transaction error";
-//  			goto transactionerror;
-//  		}
- 			
-//  		// if all went well commit changes
-//  		$this->db->trans_commit();
- 			
-//  		echo json_encode(array('status'=>'success','tState'=>$tState));
-//  		return;
- 	
-//  		transactionerror:
-//  		$this->db->trans_rollback();
- 	
-//  		error:
-//  		echo json_encode(array('status'=>'failure','message'=>$errormsg));
-//  	}
- 	
- 	
- /*	
- 	function SendGame()
- 	{
- 		$user = $_SESSION['user'];
- 		$this->load->model('user_model');
- 		$this->load->model('match_model');
- 		$game = $this->input->post('name');
- 	
- 		$user = $this->user_model->getExclusive($user->login);
- 		if ($user->user_status_id != User::PLAYING) {
- 			$errormsg="Not in PLAYING state";
- 			goto error;
- 		}
- 	
- 		$match = $this->match_model->get($user->match_id);
- 		$this->match_model->updateBoard($match->id, serialize($game));
- 	
- 		return;
- 		error:
- 		echo json_encode(array('status'=>'failure'));
- 	}
-*/
  	function SendGame(){
 //  		if(isset($_POST['board'])) { 			
 //  			$json = $_POST['board'];
@@ -233,33 +172,27 @@ class Board extends CI_Controller {
  			$ball = "none";
  		echo json_encode(array("ball" => $ball));
  	}
- /*
+ 
   
- 	function GetGame()
- 	{
- 		$user = $_SESSION['user'];
- 		$this->load->model('user_model');
- 		$this->load->model('match_model');
- 	
- 	
- 		$user = $this->user_model->getExclusive($user->login);
- 		if ($user->user_status_id != User::PLAYING) {
- 			$errormsg="Not in PLAYING state";
- 			goto error;
- 		}
- 	
- 		$match = $this->match_model->get($user->match_id);
- 		$ret = $this->match_model->getBlob($match->id);
- 	
- 		$obj = unserialize($ret->board_state);
- 		echo $obj;
- 		return;
- 	
- 		error:
- 		echo json_encode(array('status'=>'failure','message'=>$errormsg));
- 	
- 	}	
- 	*/
+	function endGame(){
+// 		$this->load->model('match_model');
+		$this->load->model('user_model');
+		$userid = $_POST['userId'];
+		$otheruserid = $_POST['otherUserId'];
+		
+		$userid = 1;
+		$otheruserid = 2;
+		
+		$this->user_model->updateStatus($userid,User::AVAILABLE);
+		$this->user_model->updateStatus($otheruserid,User::AVAILABLE);
+		
+		$this->user_model->updateMatch($userid,NULL);
+		$this->user_model->updateMatch($otheruserid,NULL);
+		$this->user_model->updateInvitation($userid,NULL);
+		$this->user_model->updateInvitation($otheruserid,NULL);
+		
+// 		echo $this->load->view('arcade/mainPage');
+	}
  }
  
  

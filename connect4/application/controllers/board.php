@@ -151,43 +151,43 @@ class Board extends CI_Controller {
 		echo json_encode(array('status'=>'failure','message'=>$errormsg));
  	}
  	
- 	function getMove() {
- 		$this->load->model('user_model');
- 		$this->load->model('match_model');
+//  	function getMove() {
+//  		$this->load->model('user_model');
+//  		$this->load->model('match_model');
  	
- 		$user = $_SESSION['user'];
+//  		$user = $_SESSION['user'];
  	
- 		$user = $this->user_model->get($user->login);
- 		if ($user->user_status_id != User::PLAYING) {
- 			$errormsg="Not in PLAYING state";
- 			goto error;
- 		}
- 		// start transactional mode
- 		$this->db->trans_begin();
+//  		$user = $this->user_model->get($user->login);
+//  		if ($user->user_status_id != User::PLAYING) {
+//  			$errormsg="Not in PLAYING state";
+//  			goto error;
+//  		}
+//  		// start transactional mode
+//  		$this->db->trans_begin();
  	
- 		$match = $this->match_model->getExclusive($user->match_id);
+//  		$match = $this->match_model->getExclusive($user->match_id);
  		
- 		//diserialize
- 		$blob = $match->board_state;
- 		$tState = unserialize(base64_decode($blob));
+//  		//diserialize
+//  		$blob = $match->board_state;
+//  		$tState = unserialize(base64_decode($blob));
  		
- 		if ($this->db->trans_status() === FALSE) {
- 			$errormsg = "Transaction error";
- 			goto transactionerror;
- 		}
+//  		if ($this->db->trans_status() === FALSE) {
+//  			$errormsg = "Transaction error";
+//  			goto transactionerror;
+//  		}
  			
- 		// if all went well commit changes
- 		$this->db->trans_commit();
+//  		// if all went well commit changes
+//  		$this->db->trans_commit();
  			
- 		echo json_encode(array('status'=>'success','tState'=>$tState));
- 		return;
+//  		echo json_encode(array('status'=>'success','tState'=>$tState));
+//  		return;
  	
- 		transactionerror:
- 		$this->db->trans_rollback();
+//  		transactionerror:
+//  		$this->db->trans_rollback();
  	
- 		error:
- 		echo json_encode(array('status'=>'failure','message'=>$errormsg));
- 	}
+//  		error:
+//  		echo json_encode(array('status'=>'failure','message'=>$errormsg));
+//  	}
  	
  	
  /*	

@@ -10,6 +10,15 @@
 
 			var player = "<?= $player ?>";
 
+			var myColor;
+
+			var localMove = false;
+			
+			if(player == user)
+				myColor = "red";
+			else
+				myColor = "yellow";
+			
 			//Loading the images:
 			var board_img = new Image();
 			var ball_red = new Image();
@@ -20,7 +29,7 @@
 			ball_yellow.src = "<?= base_url()?>/images/yellow.png"
 
 			var firstLoad = true;
-
+			var fix = false;
 			var returned_board = new Array();	
 			for(var i = 0; i<7; i++){ 
 				returned_board[i] = new Array(); 
@@ -41,9 +50,6 @@
 
 				//movement flags: if the user did a movement, did receives true and column is where the movement was done.
 				var movement_user1 = {did: false, column: 0, height: 0};
-				var movement_user2 = {did: false, column: 0, height: 0};
-
-				var turn = 1; //user1 = 1; user2 = 2;	
 						
 				var next_move = 0;
 
@@ -65,37 +71,56 @@
 // 				turn=1;
 				//function to draw and redraw the game.
 				function draw() {
-					//clear div:
-
+					//clear div:					
+					update();
 					context.clearRect(0, 0, context_width, context_height);
-					var made_move = false;
-					
+					var board_changed = false;
+
 					for(var i = 0; i<6; i++){
 						for(var j = 0; j<7; j++){
-							if(returned_board[i][j] !=ball[i][j])
-								made_move = true;
+							if(returned_board[i][j] !=ball[i][j]){
+// 								if(!firstLoad)
+// 									console.log("Differs on ["+i+"]["+j+"]");
+								board_changed = true;
+							}
 						}
 					}
-					update();
-					if(made_move){					
+					
+// 					console.log("Player " + player);
+// 					console.log("User " + user);					
+// 					console.log("Other user " + otherUser);
+					
+					if(board_changed){		
+						
+// 						console.log("LOCAL BOARD");
+// 						console.log(ball);
+// 						console.log("REMOTE BOARD");
+// 						console.log(returned_board);
+						
 						for(var i = 0; i<6; i++){
 							for(var j = 0; j<7; j++){
 								ball[i][j] = returned_board[i][j];
 							}
 						}
-
-						if(!firstLoad){
-							console.log("someone made a move");
-							if(player==user){
-								turn = 1;
-							}else
-								turn = 2;
+// 						if(!localMove && !firstLoad){ // The other player made the movement
+						if(!localMove && !firstLoad){
+							console.log("BOARD CHANGED!");
+							
+// 							console.log("Your oponent made a move!!!");
+							if(player == user){
+								player = otherUser;
+							}else{
+								player = user;
+							}
+// 						}else if(!firstLoad){
+// 							localMove = false;
 						}
-						firstLoad=false;
-					}
-// 					else
 						
-					
+						firstLoad = false;
+					}
+
+						
+
 					//1. draw balls
 						for(var i = 0; i<7;i++){
 							for(var j=0;j<7;j++){
@@ -111,55 +136,48 @@
 							}
 						}
 						//draw next move:
-						if(turn == 1 && user==player)
+						if(myColor=="red")
 							context.drawImage(ball_red, board_initial_x+next_move*77-(next_move*2/(12-next_move)), 10, 66,66);
-						else if(turn == 2 && user!=player)
+						else if(myColor=="yellow")
 							context.drawImage(ball_yellow, board_initial_x+next_move*77-(next_move*2/(12-next_move)), 10, 66,66);
 						
 						//if there is a ball falling:
 						//need to know where. -> object movement_userx.did; movement_userx.column.
 						
 						//red ball movement
-						if(movement_user1.did){
+						if(localMove){
 							var k = movement_user1.column;
-							context.drawImage(ball_red, board_initial_x+k*77-(k*2/(12-k)), movement_user1.height, 66,66);
+							if(myColor=="red")
+								context.drawImage(ball_red, board_initial_x+k*77-(k*2/(12-k)), movement_user1.height, 66,66);
+							else
+								context.drawImage(ball_yellow, board_initial_x+k*77-(k*2/(12-k)), movement_user1.height, 66,66);
 							movement_user1.height += 30;
 							for(var i = 0; i<5;i++){
 								if(ball[i+1][k] != 0){
 									if(movement_user1.height > board_initial_y+i*77-(k*2/(12-k))){
-										movement_user1.did=false;
+										localMove=false;
 										movement_user1.height = 0;
-										ball[i][k] = 1;
+										if(myColor=="red")
+											ball[i][k] = 1;
+										else
+											ball[i][k] = 2;
 									}
 								} 
 							}
 							if(movement_user1.height > 500){
-								movement_user1.did = false;
+								localMove = false;
 								movement_user1.height = 0;
-								ball[5][k] = 1;
+								if(myColor=="red")
+									ball[i][k] = 1;
+								else
+									ball[i][k] = 2;
 							}
 							didMove(ball);
-						}
-						//yellow ball movement
-						if(movement_user2.did){
-							var k = movement_user2.column;
-							context.drawImage(ball_yellow, board_initial_x+k*77-(k*2/(12-k)), movement_user2.height, 66,66);
-							movement_user2.height += 30;
-							for(var i = 0; i<5;i++){
-								if(ball[i+1][k] != 0){
-									if(movement_user2.height > board_initial_y+i*77-(k*2/(12-k))){
-										movement_user2.did=false;
-										movement_user2.height = 0;
-										ball[i][k] = 2;
-									}
-								} 
+							if(player == user){
+								player = otherUser;
+							}else{
+								player = user;
 							}
-							if(movement_user2.height > 500){
-								movement_user2.did = false;
-								movement_user2.height = 0;
-								ball[5][k] = 2;
-							}
-							didMove(ball);
 						}
 
 					//2. draw board
@@ -195,31 +213,16 @@
 
 			    
 				context.canvas.addEventListener("click", function(event){
-
 					if(ball[0][next_move]==0){
-						if (turn == 1){
-							if(user==player){
-								//turn = 2;
-								movement_user1.did = true;
-								movement_user1.column = next_move;
-								//postMove -> similar to postMsg (see bellow in chat);
-															
-							} else{
+							verifyWinner();	
+							if(player==user){
+									localMove = true;
+									movement_user1.did = true;
+									movement_user1.column = next_move;	
+				
+							}else{
 								alert("The other player needs to make a move, wait please.");
-							}					
-							
-						} else if (turn == 2){
-							if(user!=player){
-								//turn = 1;
-								movement_user2.did = true;
-								movement_user2.column = next_move;
-								//postMove;
-								
-							} else{
-								alert("The other player needs to make a move, wait please.");
-							}
-						}
-						verifyWinner();					
+							}																				
 					}
 					
 				}, false);
@@ -306,42 +309,19 @@
 						}
 					}
 				}
-				
-				
-				
-				//getMove here!!!
-// 				function update() {
-					var url = "<?= base_url() ?>board/getMove";
-// 					$.getJSON(url, function (data,text,jqXHR){
-// 						if (data && data.status=='success') {
-// 							var tState = data.tState;
-// 						}
-// 						if(tState < 7){
-// 							if(turn==1){
-// 								movement_user1.did = true;
-// 								movement_user1.column = tState;
-// 								turn=2;
-// 							} else if(turn == 2){
-// 								movement_user2.did = true;
-// 								movement_user2.column = tState;
-// 								turn=1;
-// 							}
-// 						}	
-// 					});
-// 				}
 					
 				function update(){
 					var action = new Object();
 					action.user = user;
-// 					console.log(action);
-					$.getJSON( "GetGame/controllers/board.php", action,function( data ) {							
+					action.otherUser = otherUser;
+					$.getJSON('<?= base_url() ?>board/GetGame', action,function( data ) {							
 						if(data.ball!= "none"){							
-							for(var i = 0; i<6; i++){
-								for(var j = 0; j<7; j++){
-									returned_board[i][j] = data.ball[i][j]; //if it is 0, the position does not have a ball
-								}
-							}
-							
+// 							for(var i = 0; i<6; i++){
+// 								for(var j = 0; j<7; j++){
+// 									returned_board[i][j] = data.ball[i][j]; //if it is 0, the position does not have a ball
+// 								}
+// 							}
+							returned_board = $.extend(true, {},data.ball);
 						}else{
 							for(var i = 0; i<6; i++){
 								for(var j = 0; j<7; j++){
@@ -361,19 +341,10 @@
 					action.move_place = move_place;					
 					  $.ajax({
 						    type: 'POST',
-						    url: 'SendGame/controllers/board.php',
+						    url: '<?= base_url() ?>board/SendGame',
 						    data: action				  
 						  });			
 				}
-						
-					
-				
-				
-		//		var updating = setInterval(100,update);
-					
-			
-
-
 				
 				$('body').everyTime(2000,function(){
 						if (status == 'waiting') {
